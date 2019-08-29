@@ -1,0 +1,127 @@
+---
+#title: "Skarlupka - Coding Exercise"
+#output: html_notebook
+---
+
+Load and view the information about the gapminder dataset on "dslabs" 
+
+```{r}
+library("dslabs")
+data(gapminder)
+help(gapminder)
+```
+
+View the structure of the gapminder data set.
+
+```{r}
+str(gapminder)
+```
+
+View the summary of the gapminder dataset.
+
+```{r}
+summary(gapminder)
+```
+
+Check the class of the gapminder dataset to check what type of object the dataset is.
+
+```{r}
+class(gapminder)
+```
+Create a subset of the data that contains only African countries. The subset function selects all rows that have the specified value. On the African country dataset, determine the structure (str) and the summary (summary) of the new object.
+
+```{r}
+africadata <- subset(gapminder, continent == "Africa")
+
+str(africadata)
+
+summary(africadata)
+```
+
+Create the babies object. From the africadata dataset extract the infant_mortality and the life_expectancy columns. Characterize the object's structure and summary. 
+
+```{r}
+babies <- subset(africadata, select = c(infant_mortality, life_expectancy))
+
+str(babies)
+
+summary(babies)
+
+```
+
+Create the persons object. From the africadata dataset extract the population and the life_expectancy columns. Characterize the object's structure and summary. 
+
+```{r}
+
+persons <- subset(africadata, select = c(population, life_expectancy))
+
+str(persons)
+
+summary(persons)
+```
+
+Graph the infant data with life expectancy on the y-axis.
+
+```{r}
+plot(x = babies$infant_mortality, y = babies$life_expectancy, type = "p")
+```
+There is a negative correlation between infant mortality and life expectancy. 
+
+
+Graph the total population data with life expectancy on the y-axis
+
+```{r}
+plot(x = log(persons$population, 10), y = persons$life_expectancy)
+```
+There is a positive corelation between population and life expectancy. There are individual streaks of data because Africa is composed of many different countries, each of which with their own populations and life expectancy data. I hypothesize that the streaks correspond to specific countries. 
+
+
+We need to look at one year that has the most data for life expectancy, infant mortality and population size. So first lets figure out the years that are missing data for infant mortality. 
+
+I'm pretty sure that we need to use indexing for this. Of the africadata dataset I will index the NA values for the infant_mortality variable. Then I will apply those index values to the year variable and pull out which year corresponds to the NA values. Then, maybe at the end I'll be able to count how many of each year I have to determine the year with the least amount of NA's. 
+
+```{r}
+ind <- is.na(africadata$infant_mortality)
+
+missing_years <- africadata$year[ind]
+
+print(missing_years)
+
+hist(missing_years, breaks = 40, freq = TRUE)
+```
+
+Year 2000 does not have any NAs, so extract the data from the year 2000, and check the structure and summary for the data set.
+
+```{r}
+Year2000 <- subset(africadata, year == "2000")
+
+str(Year2000)
+
+summary(Year2000)
+```
+
+Now create the two plots again. Look at life expectancy vs infant mortality  and life expectancy vs population. 
+
+```{r}
+plot(x = Year2000$infant_mortality, y = Year2000$life_expectancy, main = "Relationship of Infant Mortality and Life Expectancy", sub = "Year 2000 of the African Continent", xlab = "Infant Mortality (deaths per 1000 births)", ylab = "Life Expectancy (years)")
+
+plot(x = log(Year2000$population, 10), y = Year2000$life_expectancy, main = "Relationship of Total Population and Life Expectancy", sub = "Year 2000 of the African Continent", xlab = "Population (log10)", ylab = "Life Expectancy (years)")
+```
+
+There seems to be a negative relationship between infant mortality and life expectancy. There is no distinguishable relationship between the overall population and life expectancy. So we're going to look a little more into infant mortality. 
+
+Fit the data (infant mortality = fit1; population size = fit2) to a linear fit with the lm function. To use the lm function the first argument is a formula. For simple linear regression the formula is "Yvariable ~ Xvariable", where Yvariable is the dependent, or predicted, variable and Xvariable is the independent, or predictor, variable. 
+
+```{r}
+fit1 <- lm(Year2000$life_expectancy ~ Year2000$infant_mortality)
+
+fit2 <- lm(Year2000$life_expectancy ~ log(Year2000$population, 10))
+
+summary(fit1)
+
+summary(fit2)
+```
+
+Based on the p-values I do not reject the null hypothesis that the slope between population size and life expectancy is not equal to zero (F = 0.517; d.f. = 49; p = 0.4755). However, I reject the null hypothesis that the slope between infant mortality and life expectancy is not equal to zero, in favor for the alternative hypothesis that the slope is not equal to zero. 
+
+Infant mortality has a negative linear relationship with life expectancy (F = 43.48; d.f. = 49; p = 2.826e-08), and explains 45.93% (6.221 = standard error) of the variance in life expectancy. 
