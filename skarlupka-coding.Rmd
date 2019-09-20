@@ -125,3 +125,74 @@ summary(fit2)
 Based on the p-values I do not reject the null hypothesis that the slope between population size and life expectancy is not equal to zero (F = 0.517; d.f. = 49; p = 0.4755). However, I reject the null hypothesis that the slope between infant mortality and life expectancy is not equal to zero, in favor for the alternative hypothesis that the slope is not equal to zero. 
 
 Infant mortality has a negative linear relationship with life expectancy (F = 43.48; d.f. = 49; p = 2.826e-08), and explains 45.93% (6.221 = standard error) of the variance in life expectancy. 
+
+
+```{r}
+
+#Module 6 Tidyverse Exercise written by Jonathan Wilson
+
+library(tidyverse)
+library(skimr)
+
+glimpse(gapminder)
+skim(gapminder)
+
+```
+```{r}
+
+#select African countries and extract data and keep variables infant_mortality, life_expectancy, population and country, using filter and select from dplyr
+
+gapminder %>%
+
+  filter(continent == "Africa") %>%
+
+  select(infant_mortality, life_expectancy, population, country) %>%
+  
+#use ggplot to make 2 plots of life expectancy as a function of infant mortality and then of population, using a different colour for each country
+
+  ggplot() + geom_point(aes(infant_mortality, life_expectancy, col= country)) + labs(x="Infant Mortality per 1000", y= "Life Expectancy in years", title= "Infant Mortality and Life Expectancy Correlation, Africa")
+
+```
+```{r}
+#now repeat with population
+
+gapminder %>%
+
+  filter(continent == "Africa") %>%
+
+  select(infant_mortality, life_expectancy, population, country) %>%
+
+  ggplot() + geom_point(aes(population, life_expectancy, col= country)) + labs(x="Population", y= "Life Expectancy in years", title= "Population and Life Expectancy Correlation, Africa")
+
+
+```
+```{r}
+#Repeated again with log(population)
+gapminder %>%
+
+  filter(continent == "Africa") %>%
+
+  select(infant_mortality, life_expectancy, population, country) %>%
+
+  ggplot() + geom_point(aes(log(population), life_expectancy, col= country)) +labs(x="log(Population)", y= "Life Expectancy in years", title= "Log(Population) and Life Expectancy Correlation, Africa")
+
+
+```
+```{r}
+
+#now make another plot using gapminder object
+#this time pull only the data for the year 2000 and Africa and plot infant mortality vs life expectancy
+#also add linear fit model to plot 
+
+gapminder %>%
+
+  filter(continent == "Africa", year == 2000) %>%
+
+  select(infant_mortality, life_expectancy, population, country) %>%
+
+  ggplot(aes(infant_mortality, life_expectancy)) + geom_point() + geom_smooth(method = "lm") + labs(x="Infant Mortality per 1000", y= "Life Expectancy in years", title= "Infant Mortality and Life Expectancy Correlation, Africa, year 2000")
+
+
+
+```
+
